@@ -1,0 +1,8 @@
+(fp_lib_table
+  (lib (name ESP8266)(type KiCad)(uri "$(KIPRJMOD)/Libraries/Footprints/ESP8266.pretty")(options "")(descr ""))
+  (lib (name Terminal)(type KiCad)(uri "$(KIPRJMOD)/Libraries/Footprints/Terminal.pretty")(options "")(descr ""))
+  (lib (name Connector_FFC-FPC)(type KiCad)(uri "$(KIPRJMOD)/Libraries/Footprints/Connector_FFC-FPC.pretty")(options "")(descr ""))
+  (lib (name Capacitor)(type KiCad)(uri "$(KIPRJMOD)/Libraries/Footprints/Capacitor.pretty")(options "")(descr ""))
+  (lib (name ePaper)(type KiCad)(uri "$(KIPRJMOD)/Libraries/Footprints/ePaper.pretty")(options "")(descr ""))
+  (lib (name LED_castellation)(type KiCad)(uri "$(KIPRJMOD)/Libraries/Footprints/LED_castellation.pretty")(options "")(descr ""))
+)
