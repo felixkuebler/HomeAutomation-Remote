@@ -1,4 +1,4 @@
-update=Freitag, 07. September 2018 22:23:45
+update=Donnerstag, 09. März 2023 23:40:50
 version=1
 last_client=kicad
 [pcbnew]
@@ -27,7 +27,7 @@ NetIExt=net
 version=1
 [eeschema]
 version=1
-LibDir=lib/schematics
+LibDir=
 [eeschema/libraries]
 LibName1=power
 LibName2=device
@@ -61,3 +61,5 @@ LibName29=valves
 LibName30=Libraries/Schematics/ESP8266
 LibName31=Libraries/Schematics/SW_DPST_x2
 LibName32=Libraries/Schematics/ePaper
+LibName33=Libraries/Schematics/TX0RX0
+LibName34=Libraries/Schematics/dk_Transistors-FETs-MOSFETs-Single

@@ -5,4 +5,5 @@
   (lib (name Capacitor)(type KiCad)(uri "$(KIPRJMOD)/Libraries/Footprints/Capacitor.pretty")(options "")(descr ""))
   (lib (name ePaper)(type KiCad)(uri "$(KIPRJMOD)/Libraries/Footprints/ePaper.pretty")(options "")(descr ""))
   (lib (name LED_castellation)(type KiCad)(uri "$(KIPRJMOD)/Libraries/Footprints/LED_castellation.pretty")(options "")(descr ""))
+  (lib (name Crystals)(type Github)(uri "$(KIGITHUB)/Crystals.pretty")(options "")(descr ""))
 )
