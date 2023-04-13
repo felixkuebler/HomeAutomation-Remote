@@ -1,0 +1,7 @@
+(sym_lib_table
+  (version 0)
+  (lib (name "Remote-rescue")(type "Legacy")(uri "${KIPRJMOD}/Remote-rescue.lib")(options "")(descr ""))
+  (lib (name "ESP8266")(type "Legacy")(uri "${KIPRJMOD}/Libraries/Schematics/ESP8266.lib")(options "")(descr ""))
+  (lib (name "SW_DPST_x2")(type "Legacy")(uri "${KIPRJMOD}/Libraries/Schematics/SW_DPST_x2.lib")(options "")(descr ""))
+  (lib (name "ePaper")(type "Legacy")(uri "${KIPRJMOD}/Libraries/Schematics/ePaper.lib")(options "")(descr ""))
+)
