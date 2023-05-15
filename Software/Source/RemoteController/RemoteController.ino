@@ -1,6 +1,8 @@
 #include <stdio.h>
 
 #include "SPI.h"
+#include <IRremote.h>
+#include "IRConfig.hpp"
 
 #include "MCP23S17.h"
 
@@ -9,6 +11,9 @@
 #include "epdpaint.h"
 
 #include "BOKeypad.hpp"
+
+// IR object for infrared transmission and reception
+IRsend irSender(pinIrLedOut);
 
 const uint8_t expanderCs = 15;
 const uint8_t displayCs = 14;
@@ -27,6 +32,8 @@ Paint paint(image, 0, 0);
 void setup() {
   Serial.begin(9600);
   delay(100);
+
+  irSender.begin(pinIrLedOut);
 
   SPI.begin();
   delay(100);
@@ -80,6 +87,15 @@ void loop() {
 
 
   delay(100);
+          // turn TV on
+          irSender.sendSAMSUNG(ITConfig::IRCommands::tvOn, 32); 
+          // turn amplifier on
+          irSender.sendRaw_P(ITConfig::IRCommands::ampOn, ITConfig::IRCommands::ampOnLength, NEC_KHZ);
+          break;
+      // turn TV off
+      irSender.sendSAMSUNG(ITConfig::IRCommands::tvOff, 32); 
+      // turn amplifier off
+      irSender.sendRaw_P(ITConfig::IRCommands::ampOff, ITConfig::IRCommands::ampOffLength, NEC_KHZ);
 }
 
 
