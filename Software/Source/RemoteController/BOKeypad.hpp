@@ -1,3 +1,4 @@
+#include <avr/pgmspace.h>
 
 
 
@@ -42,7 +43,7 @@ enum BtnId: uint8_t {
   NONE = 255
 };
 
-char* btnNames[BtnId::NUM_IDS] = {
+constexpr char* btnNames[BtnId::NUM_IDS] PROGMEM = {
   "TV", "LIGHT", "RADIO", "DTV", "DVD", "CD", "VMEM", "RECORD", "AMEM", "7", "8", "9", "4", "5", "6", "1", "2", "3",
   "TEXT", "0", "MENU", "GREEN", "UP", "YELLOW", "LEFT", "GO", "RIGHT", "RED", "DOWN", "BLUE", "LIST", "VOL UP", "EXIT", "STOP", "VOL DOWN", "OFF"
 };
@@ -50,7 +51,7 @@ char* btnNames[BtnId::NUM_IDS] = {
 constexpr uint8_t numGpioOut = 6;
 constexpr uint8_t numGpioIn = 6;
 
-BtnId btnIds[numGpioOut][numGpioIn] = {
+constexpr BtnId btnIdMap[numGpioOut][numGpioIn] PROGMEM = {
   {BtnId::TV, BtnId::DTV, BtnId::VMEM, BtnId::NUM7, BtnId::NUM4, BtnId::NUM1},
   {BtnId::LIGHT, BtnId::DVD, BtnId::RECORD, BtnId::NUM8, BtnId::NUM5, BtnId::NUM2},
   {BtnId::RADIO, BtnId::CD, BtnId::AMEM, BtnId::NUM9, BtnId::NUM6, BtnId::NUM3},
@@ -61,14 +62,14 @@ BtnId btnIds[numGpioOut][numGpioIn] = {
 
 BtnId gpioToBtnId(uint8_t outPin, uint8_t inPin){
   if (outPin < numGpioOut && inPin < numGpioIn) {
-    return btnIds[outPin][inPin];
+    return pgm_read_word(&btnIdMap[outPin][inPin]);
   }
   return BtnId::NONE;
 }
 
 char* getBtnName(BtnId id) {
   if (id < BtnId::NUM_IDS) {
-    return btnNames[id];
+    return pgm_read_word(&btnNames[id]);
   }
   return nullptr;
 }
