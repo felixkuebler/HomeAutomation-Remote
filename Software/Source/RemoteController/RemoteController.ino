@@ -1,3 +1,4 @@
+#include <avr/sleep.h>
 
 #include <IRremote.h>
 #include "IRConfig.hpp"
@@ -15,6 +16,9 @@
 #define pinExpanderIrq 2
 
 #define pinDisplayCs 14
+
+// 30 seconds timeout
+#define sleepTimeout 30000
 
 // IR object for infrared transmission and reception
 IRsend irSender(pinIrLedOut);
@@ -36,6 +40,9 @@ volatile BOKeybad::BtnId activeBtnId = BOKeybad::BtnId::NONE;
 // is set in IRS and executed in thread context
 volatile bool irqOccured = false;
 
+// timer variable to keep track of the last time a button has been pressed
+// use this time to send cpu into sleep mode
+volatile unsigned long upTime = millis();
 
 void setup() {
   Serial.begin(9600);
@@ -186,12 +193,31 @@ void loop() {
     }
     // clear active button indicator to be set with the next btn press
     activeBtnId = BOKeybad::BtnId::NONE;
+    // update current time for last button press timeout
+    upTime = millis();
   }
+
+  // if no btn has been pressed in some time
+  // send the cpu into sleep mode to save power
+  if (millis() - upTime > sleepTimeout) {
+    enterSleepMode();
+    upTime = millis();
+  }  
 }
 
 void gpioExpanderIsr() {
   // set irq flag to true for handling in main thread
   irqOccured = true;
+}
+
+void enterSleepMode() {
+    // configure sleep mode
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+    sleep_enable();
+    // enter sleep mode
+    sleep_mode();
+    // return here when the gpio interrupt has fired
+    sleep_disable();
 }
 
 void displayText(char* text) {
