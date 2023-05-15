@@ -7,7 +7,6 @@
 #include "BOKeypad.hpp"
 
 #include "epd1in54_V2.h"
-#include "imagedata.h"
 #include "epdpaint.h"
 
 #define pinIrLedOut 3
@@ -29,8 +28,6 @@ Epd display;
 // stores the currently active device selector of the remote
 volatile uint8_t currentDeviceSelectBtnId = BOKeybad::BtnId::TV;
 
-#define COLORED     0
-#define UNCOLORED   1
 // stores the last pushed button
 // BtnId::NONE if already handled or on startup
 volatile BOKeybad::BtnId activeBtnId = BOKeybad::BtnId::NONE;
@@ -93,6 +90,9 @@ bool setupDisplay() {
   // this will refresh the hardware
   display.LDirInit();
   display.Clear();
+
+  // display the default device selector
+  displayText(BOKeybad::getBtnName(currentDeviceSelectBtnId));
 
   return true; 
 }
@@ -195,12 +195,31 @@ void gpioExpanderIsr() {
 }
 
 void displayText(char* text) {
-  paint.SetWidth(200);
-  paint.SetHeight(24);
+  // canvas for paining the text
+  uint8_t img[1024];
+  Paint paint(img, 0, 0);
 
+  const uint8_t heightDisplay = 200;
+  const uint8_t widthDisplay = 200;
+
+  const uint8_t heightCanvas = 24;
+  const uint8_t widthCanvas = widthDisplay;
+
+  const uint8_t posCanvasX = (widthCanvas - (Font24.Width*strlen(text)))/2;
+  const uint8_t posCanvasY = 0;
+
+  const uint8_t posDisplayX = 0;
+  const uint8_t posDisplayY = (heightDisplay - Font24.Height)/2;
+
+  // set the dimensions of the canvas
+  paint.SetWidth(widthCanvas);
+  paint.SetHeight(heightCanvas);
+
+  // draw text
   paint.Clear(UNCOLORED);
-  paint.DrawStringAt(30, 4, text, &Font16, COLORED);
+  paint.DrawStringAt(posCanvasX, posCanvasY, text, &Font24, COLORED);
 
-  display.SetFrameMemoryPartial(paint.GetImage(), 0, 0, paint.GetWidth(), paint.GetHeight());
+  // update display
+  display.SetFrameMemoryPartial(paint.GetImage(), posDisplayX, posDisplayY, paint.GetWidth(), paint.GetHeight());
   display.DisplayPartFrame();
 }
