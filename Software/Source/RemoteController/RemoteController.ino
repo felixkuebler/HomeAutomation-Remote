@@ -27,6 +27,9 @@ Paint paint(image, 0, 0);
 #define COLORED     0
 #define UNCOLORED   1
 
+// interrupt handling request
+// is set in IRS and executed in thread context
+volatile bool irqOccured = false;
 
 
 void setup() {
@@ -62,6 +65,26 @@ bool setupGpioExpander() {
   expander.pinMode(13, INPUT);
   
   return expander.isConnected();
+  // set compare default value to zeros
+  gpioExpander.writeReg(MCP23S17_DEFVAL_B, 0x00);
+  // set compare against default values
+  gpioExpander.writeReg(MCP23S17_INTCON_B, 0xFF);
+  // use interrupt pin as driven output
+  gpioExpander.disableControlRegister(MCP23S17_IOCR_ODR);
+  // set polarity of interrupt pin to active high
+  gpioExpander.enableControlRegister(MCP23S17_IOCR_INTPOL);
+  // enable interrupts for bank b
+  gpioExpander.writeReg(MCP23S17_GPINTEN_B, 0x3F);
+  // clear interrupt pending
+  gpioExpander.readReg(MCP23S17_INTCAP_B);
+
+  // configure interrupt pin
+  pinMode(pinExpanderIrq, INPUT);
+  // attach the interrupt handling of the mcu
+  attachInterrupt(digitalPinToInterrupt(pinExpanderIrq), gpioExpanderIsr, RISING);
+
+  // set all output gpios to high
+  gpioExpander.write8(MCP23S17_PORTA, 0x3F);
 }
 
 bool setupDisplay() {
@@ -72,17 +95,43 @@ bool setupDisplay() {
 }
 
 void loop() {
-  for (int outPin = 0; outPin < 6; outPin++) {
-    expander.digitalWrite(outPin, 1);
-    for (int inPin = 0; inPin < 6; inPin++) {
-      bool assert = expander.digitalRead(inPin+8);
-      if (assert) {
-        BtnId id = gpioToBtnId(outPin, inPin);
-        Serial.println(getBtnName(id));
-        displayText(getBtnName(id));
+  // handle input button interrupt
+  if (irqOccured) {
+    // reset irq flag
+    irqOccured = false;
+    // disable interrupt while accessing the gpios of the expander
+    detachInterrupt(digitalPinToInterrupt(pinExpanderIrq));
+
+    for (uint8_t outPin = 0; outPin < BOKeybad::numGpioOut; outPin++) {
+      // write single output gpio
+      gpioExpander.write8(MCP23S17_PORTA, 0x01 << outPin);
+      // read back all input gpios
+      uint8_t inputMask = gpioExpander.read8(MCP23S17_PORTB);
+      inputMask &= 0x3F;
+      // check if any input is set
+      if (inputMask) {
+        // find which input is set
+        uint8_t inputPinIdx = 0;
+        while (inputPinIdx < BOKeybad::numGpioIn) {
+          if (inputMask >> inputPinIdx & 0x01 == 0x01) {
+            break;
+          }
+          inputPinIdx++;
+        }
+        // set active btn id
+        activeBtnId = BOKeybad::gpioToBtnId(outPin, inputPinIdx);
       }
+    } 
+    // turn on all out gpios
+    gpioExpander.write8(MCP23S17_PORTA, 0x3F);
+
+    // clear expander interrupt
+    while(digitalRead(pinExpanderIrq)) {
+      gpioExpander.read8(MCP23S17_PORTB);
     }
-    expander.digitalWrite(outPin, 0);
+
+    // enable interrupt again
+    attachInterrupt(digitalPinToInterrupt(pinExpanderIrq), gpioExpanderIsr, RISING);
   }
 
 
@@ -98,6 +147,10 @@ void loop() {
       irSender.sendRaw_P(ITConfig::IRCommands::ampOff, ITConfig::IRCommands::ampOffLength, NEC_KHZ);
 }
 
+void gpioExpanderIsr() {
+  // set irq flag to true for handling in main thread
+  irqOccured = true;
+}
 
 void displayText(char* text) {
   paint.SetWidth(200);
