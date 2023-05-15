@@ -1,31 +1,39 @@
-#include <stdio.h>
 
-#include "SPI.h"
 #include <IRremote.h>
 #include "IRConfig.hpp"
 
+#include "SPI.h"
 #include "MCP23S17.h"
+#include "BOKeypad.hpp"
 
 #include "epd1in54_V2.h"
 #include "imagedata.h"
 #include "epdpaint.h"
 
-#include "BOKeypad.hpp"
+#define pinIrLedOut 3
+
+#define pinExpanderCs 15
+#define pinExpanderIrq 2
+
+#define pinDisplayCs 14
 
 // IR object for infrared transmission and reception
 IRsend irSender(pinIrLedOut);
 
-const uint8_t expanderCs = 15;
-const uint8_t displayCs = 14;
+// GPIO expander object for button input
+MCP23S17 gpioExpander(pinExpanderCs);
 
-MCP23S17 expander(expanderCs);
+// Display object for e-ink dipslay
 Epd display;
 
-unsigned char image[1024];
-Paint paint(image, 0, 0);
+// stores the currently active device selector of the remote
+volatile uint8_t currentDeviceSelectBtnId = BOKeybad::BtnId::TV;
 
 #define COLORED     0
 #define UNCOLORED   1
+// stores the last pushed button
+// BtnId::NONE if already handled or on startup
+volatile BOKeybad::BtnId activeBtnId = BOKeybad::BtnId::NONE;
 
 // interrupt handling request
 // is set in IRS and executed in thread context
@@ -49,22 +57,13 @@ void setup() {
 }
 
 bool setupGpioExpander() {
-  expander.begin();
+  gpioExpander.begin();
 
-  expander.pinMode(0, OUTPUT);
-  expander.pinMode(1, OUTPUT);
-  expander.pinMode(2, OUTPUT);
-  expander.pinMode(3, OUTPUT);
-  expander.pinMode(4, OUTPUT);
-  expander.pinMode(5, OUTPUT);
-  expander.pinMode(8, INPUT);
-  expander.pinMode(9, INPUT);
-  expander.pinMode(10, INPUT);
-  expander.pinMode(11, INPUT);
-  expander.pinMode(12, INPUT);
-  expander.pinMode(13, INPUT);
-  
-  return expander.isConnected();
+  // use all gpios on port a for output
+  gpioExpander.pinMode8(MCP23S17_PORTA, 0x00);
+  // use all gpios on port b as inputs
+  gpioExpander.pinMode8(MCP23S17_PORTB, 0x3F);
+
   // set compare default value to zeros
   gpioExpander.writeReg(MCP23S17_DEFVAL_B, 0x00);
   // set compare against default values
@@ -85,9 +84,13 @@ bool setupGpioExpander() {
 
   // set all output gpios to high
   gpioExpander.write8(MCP23S17_PORTA, 0x3F);
+
+  return gpioExpander.isConnected();
 }
 
 bool setupDisplay() {
+  // init and clear the display
+  // this will refresh the hardware
   display.LDirInit();
   display.Clear();
 
@@ -134,17 +137,56 @@ void loop() {
     attachInterrupt(digitalPinToInterrupt(pinExpanderIrq), gpioExpanderIsr, RISING);
   }
 
+  // check if a new button input was pressed
+  if (activeBtnId != BOKeybad::BtnId::NONE) {
 
-  delay(100);
+    Serial.print("Active Btn: ");  
+    Serial.println(BOKeybad::getBtnName(activeBtnId));  
+
+    // check if pressed button is device selector button
+    if (BOKeybad::isDeviceSelectBtn(activeBtnId)) {
+      // only change display text if different from current state
+      if (activeBtnId != currentDeviceSelectBtnId){
+        displayText(BOKeybad::getBtnName(activeBtnId));
+      }
+      // update current state
+      currentDeviceSelectBtnId = activeBtnId;
+
+      // different actions for the device selct buttons
+      switch (currentDeviceSelectBtnId) {
+        case BOKeybad::BtnId::TV : {
           // turn TV on
           irSender.sendSAMSUNG(ITConfig::IRCommands::tvOn, 32); 
           // turn amplifier on
           irSender.sendRaw_P(ITConfig::IRCommands::ampOn, ITConfig::IRCommands::ampOnLength, NEC_KHZ);
           break;
+        }
+      }
+    }
+    // check ifpressed button is a number button
+    else if (BOKeybad::isNumBtn(activeBtnId)){
+      // different actions for each number
+      switch (currentDeviceSelectBtnId) {
+        case BOKeybad::BtnId::NUM0 : {
+          //send ir
+          break;
+        }
+        case BOKeybad::BtnId::NUM1 : {
+          //send ir
+          break;
+        }
+      }
+    }
+    // check if special function button off
+    else if (activeBtnId == BOKeybad::BtnId::OFF) {
       // turn TV off
       irSender.sendSAMSUNG(ITConfig::IRCommands::tvOff, 32); 
       // turn amplifier off
       irSender.sendRaw_P(ITConfig::IRCommands::ampOff, ITConfig::IRCommands::ampOffLength, NEC_KHZ);
+    }
+    // clear active button indicator to be set with the next btn press
+    activeBtnId = BOKeybad::BtnId::NONE;
+  }
 }
 
 void gpioExpanderIsr() {

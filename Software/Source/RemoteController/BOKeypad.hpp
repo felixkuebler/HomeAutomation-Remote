@@ -1,6 +1,6 @@
 #include <avr/pgmspace.h>
 
-
+namespace BOKeybad {
 
 enum BtnId: uint8_t {
   TV,
@@ -43,13 +43,13 @@ enum BtnId: uint8_t {
   NONE = 255
 };
 
+constexpr uint8_t numGpioOut = 6;
+constexpr uint8_t numGpioIn = 6;
+
 constexpr char* btnNames[BtnId::NUM_IDS] PROGMEM = {
   "TV", "LIGHT", "RADIO", "DTV", "DVD", "CD", "VMEM", "RECORD", "AMEM", "7", "8", "9", "4", "5", "6", "1", "2", "3",
   "TEXT", "0", "MENU", "GREEN", "UP", "YELLOW", "LEFT", "GO", "RIGHT", "RED", "DOWN", "BLUE", "LIST", "VOL UP", "EXIT", "STOP", "VOL DOWN", "OFF"
 };
-
-constexpr uint8_t numGpioOut = 6;
-constexpr uint8_t numGpioIn = 6;
 
 constexpr BtnId btnIdMap[numGpioOut][numGpioIn] PROGMEM = {
   {BtnId::TV, BtnId::DTV, BtnId::VMEM, BtnId::NUM7, BtnId::NUM4, BtnId::NUM1},
@@ -74,17 +74,12 @@ char* getBtnName(BtnId id) {
   return nullptr;
 }
 
+bool isDeviceSelectBtn(BtnId id) {
+  return id < BtnId::NUM7;
+}
 
+bool isNumBtn(BtnId id) {
+  return id > BtnId::AMEM && id < BtnId::MENU && id != BtnId::TEXT;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+};
