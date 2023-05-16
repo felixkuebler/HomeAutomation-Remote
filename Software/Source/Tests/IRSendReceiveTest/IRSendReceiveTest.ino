@@ -17,15 +17,13 @@ IRData msg;
 uint16_t receiveIdx = 0;
 uint16_t sendIdx = 0;
 
-void setup()
-{
+void setup() {
   Serial.begin(9600);
   irReceiver.enableIRIn();
   irSender.begin(sendPin);
 }
 
-void loop() 
-{
+void loop() {
   if (irReceiver.decode()) {
 
     msg = irReceiver.decodedIRData;
@@ -42,8 +40,7 @@ void loop()
   }
 
   if (Serial.available() > 0) {
-    while (Serial.available() > 0) 
-    {
+    while (Serial.available() > 0) {
       uint8_t serial_msg = Serial.read();
     }
   
@@ -59,13 +56,7 @@ void loop()
       Serial.print(", ");
       Serial.print(msg.command, HEX);
       Serial.println("");
-    }
-
-
-
-
-    
-    else {
+    } else {
       Serial.print("Send Data is corrupt"); 
     }
 
