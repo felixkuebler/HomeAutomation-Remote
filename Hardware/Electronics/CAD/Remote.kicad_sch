@@ -3517,7 +3517,7 @@
     (property "Reference" "R2" (at 142.24 176.022 90)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "330" (at 142.24 173.99 90)
+    (property "Value" "33" (at 142.24 173.99 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at 142.24 172.212 90)
