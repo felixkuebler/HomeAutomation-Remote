@@ -163,7 +163,7 @@ void loop() {
       switch (currentDeviceSelectBtnId) {
         case BOKeybad::BtnId::TV : {
           // turn TV on
-          irSender.sendSAMSUNG(IRConfig::IRCommands::Tv::tvOn, 32);
+          irSender.sendRaw_P(IRConfig::IRCommands::Tv::tvOn, IRConfig::IRCommands::Tv::tvOnLength, NEC_KHZ);
           delay(100);
           // turn amplifier on
           irSender.sendRaw_P(IRConfig::IRCommands::Amplifier::ampOn, IRConfig::IRCommands::Amplifier::ampOnLength, NEC_KHZ);
@@ -199,7 +199,6 @@ void loop() {
           }
           case BOKeybad::BtnId::UP : {
             //send ir
-            //irSender.sendSAMSUNG(IRConfig::IRCommands::tvUp, 32);
             irSender.sendRaw_P(IRConfig::IRCommands::Tv::tvUp, IRConfig::IRCommands::Tv::tvUpLength, NEC_KHZ);
             break;
           }
@@ -210,19 +209,16 @@ void loop() {
           case BOKeybad::BtnId::LEFT : {
             //send ir
             irSender.sendRaw_P(IRConfig::IRCommands::Tv::tvLeft, IRConfig::IRCommands::Tv::tvLeftLength, NEC_KHZ);
-            //irSender.sendSAMSUNG(IRConfig::IRCommands::tvLeft, 32);
             break;
           }
           case BOKeybad::BtnId::GO : {
             //send ir
             irSender.sendRaw_P(IRConfig::IRCommands::Tv::tvEnter, IRConfig::IRCommands::Tv::tvEnterLength, NEC_KHZ);
-            //irSender.sendSAMSUNG(IRConfig::IRCommands::tvEnter, 32);
             break;
           }
           case BOKeybad::BtnId::RIGHT : {
             //send ir
             irSender.sendRaw_P(IRConfig::IRCommands::Tv::tvRight, IRConfig::IRCommands::Tv::tvRightLength, NEC_KHZ);
-            //irSender.sendSAMSUNG(IRConfig::IRCommands::tvRight, 32);
             break;
           }
           case BOKeybad::BtnId::RED : {
@@ -232,7 +228,6 @@ void loop() {
           case BOKeybad::BtnId::DOWN : {
             //send ir
             irSender.sendRaw_P(IRConfig::IRCommands::Tv::tvDown, IRConfig::IRCommands::Tv::tvDownLength, NEC_KHZ);
-            //irSender.sendSAMSUNG(IRConfig::IRCommands::tvDown, 32);
             break;
           }
           case BOKeybad::BtnId::BLUE : {
@@ -250,13 +245,11 @@ void loop() {
           case BOKeybad::BtnId::MENU : {
             //send ir
             irSender.sendRaw_P(IRConfig::IRCommands::Tv::tvHome, IRConfig::IRCommands::Tv::tvHomeLength, NEC_KHZ);
-            //irSender.sendSAMSUNG(IRConfig::IRCommands::tvHome, 32);
             break;
           }
           case BOKeybad::BtnId::EXIT : {
             //send ir
             irSender.sendRaw_P(IRConfig::IRCommands::Tv::tvBack, IRConfig::IRCommands::Tv::tvBackLength, NEC_KHZ);
-            //irSender.sendSAMSUNG(IRConfig::IRCommands::tvBack, 32);
             break;
           }
         }
@@ -277,7 +270,7 @@ void loop() {
         }
         case BOKeybad::BtnId::OFF : {
           // turn TV off
-          irSender.sendSAMSUNG(IRConfig::IRCommands::Tv::tvOff, 32); 
+          irSender.sendRaw_P(IRConfig::IRCommands::Tv::tvOff, IRConfig::IRCommands::Tv::tvOffLength, NEC_KHZ);
           delay(100);
           // turn amplifier off
           irSender.sendRaw_P(IRConfig::IRCommands::Amplifier::ampOff, IRConfig::IRCommands::Amplifier::ampOffLength, NEC_KHZ);
