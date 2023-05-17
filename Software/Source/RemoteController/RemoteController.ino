@@ -163,34 +163,129 @@ void loop() {
       switch (currentDeviceSelectBtnId) {
         case BOKeybad::BtnId::TV : {
           // turn TV on
-          irSender.sendSAMSUNG(ITConfig::IRCommands::tvOn, 32); 
+          irSender.sendSAMSUNG(IRConfig::IRCommands::Tv::tvOn, 32);
+          delay(100);
           // turn amplifier on
-          irSender.sendRaw_P(ITConfig::IRCommands::ampOn, ITConfig::IRCommands::ampOnLength, NEC_KHZ);
+          irSender.sendRaw_P(IRConfig::IRCommands::Amplifier::ampOn, IRConfig::IRCommands::Amplifier::ampOnLength, NEC_KHZ);
           break;
         }
       }
     }
-    // check ifpressed button is a number button
+    // check if pressed button is a number button
     else if (BOKeybad::isNumBtn(activeBtnId)){
-      // different actions for each number
-      switch (currentDeviceSelectBtnId) {
-        case BOKeybad::BtnId::NUM0 : {
-          //send ir
+       // handle navigation buttons for tv device
+      if (currentDeviceSelectBtnId == BOKeybad::BtnId::TV) {
+        // different actions for each number
+        switch (activeBtnId) {
+          case BOKeybad::BtnId::NUM0 : {
+            //send ir
+            break;
+          }
+          case BOKeybad::BtnId::NUM1 : {
+            //send ir
+            break;
+          }
+        }
+      }
+    }
+    // check if pressed button is a navigation button
+    else if (BOKeybad::isNavigationBtn(activeBtnId)){
+      // handle navigation buttons for tv device
+      if (currentDeviceSelectBtnId == BOKeybad::BtnId::TV) {
+        switch (activeBtnId) {
+          case BOKeybad::BtnId::GREEN : {
+            //send ir
+            break;
+          }
+          case BOKeybad::BtnId::UP : {
+            //send ir
+            //irSender.sendSAMSUNG(IRConfig::IRCommands::tvUp, 32);
+            irSender.sendRaw_P(IRConfig::IRCommands::Tv::tvUp, IRConfig::IRCommands::Tv::tvUpLength, NEC_KHZ);
+            break;
+          }
+          case BOKeybad::BtnId::YELLOW : {
+            //send ir
+            break;
+          }
+          case BOKeybad::BtnId::LEFT : {
+            //send ir
+            irSender.sendRaw_P(IRConfig::IRCommands::Tv::tvLeft, IRConfig::IRCommands::Tv::tvLeftLength, NEC_KHZ);
+            //irSender.sendSAMSUNG(IRConfig::IRCommands::tvLeft, 32);
+            break;
+          }
+          case BOKeybad::BtnId::GO : {
+            //send ir
+            irSender.sendRaw_P(IRConfig::IRCommands::Tv::tvEnter, IRConfig::IRCommands::Tv::tvEnterLength, NEC_KHZ);
+            //irSender.sendSAMSUNG(IRConfig::IRCommands::tvEnter, 32);
+            break;
+          }
+          case BOKeybad::BtnId::RIGHT : {
+            //send ir
+            irSender.sendRaw_P(IRConfig::IRCommands::Tv::tvRight, IRConfig::IRCommands::Tv::tvRightLength, NEC_KHZ);
+            //irSender.sendSAMSUNG(IRConfig::IRCommands::tvRight, 32);
+            break;
+          }
+          case BOKeybad::BtnId::RED : {
+            //send ir
+            break;
+          }
+          case BOKeybad::BtnId::DOWN : {
+            //send ir
+            irSender.sendRaw_P(IRConfig::IRCommands::Tv::tvDown, IRConfig::IRCommands::Tv::tvDownLength, NEC_KHZ);
+            //irSender.sendSAMSUNG(IRConfig::IRCommands::tvDown, 32);
+            break;
+          }
+          case BOKeybad::BtnId::BLUE : {
+            //send ir
+            break;
+          }
+        }
+      }
+    }
+    // check if pressed button is a menu button
+    else if (BOKeybad::isMenuBtn(activeBtnId)){
+      // handle navigation buttons for tv device
+      if (currentDeviceSelectBtnId == BOKeybad::BtnId::TV) {
+        switch (activeBtnId) {
+          case BOKeybad::BtnId::MENU : {
+            //send ir
+            irSender.sendRaw_P(IRConfig::IRCommands::Tv::tvHome, IRConfig::IRCommands::Tv::tvHomeLength, NEC_KHZ);
+            //irSender.sendSAMSUNG(IRConfig::IRCommands::tvHome, 32);
+            break;
+          }
+          case BOKeybad::BtnId::EXIT : {
+            //send ir
+            irSender.sendRaw_P(IRConfig::IRCommands::Tv::tvBack, IRConfig::IRCommands::Tv::tvBackLength, NEC_KHZ);
+            //irSender.sendSAMSUNG(IRConfig::IRCommands::tvBack, 32);
+            break;
+          }
+        }
+      }
+    }
+    // check if pressed button is a unique button
+    else if (BOKeybad::isUniqueBtn(activeBtnId)) {
+      switch (activeBtnId) {
+        case BOKeybad::BtnId::VOLUP : {
+          // turn volume up
+          irSender.sendRaw_P(IRConfig::IRCommands::Amplifier::ampVolUp, IRConfig::IRCommands::Amplifier::ampVolUpLength, NEC_KHZ);
           break;
         }
-        case BOKeybad::BtnId::NUM1 : {
-          //send ir
+        case BOKeybad::BtnId::VOLDOWN : {
+          // turn volume down
+          irSender.sendRaw_P(IRConfig::IRCommands::Amplifier::ampVolDown, IRConfig::IRCommands::Amplifier::ampVolDownLength, NEC_KHZ);
+          break;
+        }
+        case BOKeybad::BtnId::OFF : {
+          // turn TV off
+          irSender.sendSAMSUNG(IRConfig::IRCommands::Tv::tvOff, 32); 
+          delay(100);
+          // turn amplifier off
+          irSender.sendRaw_P(IRConfig::IRCommands::Amplifier::ampOff, IRConfig::IRCommands::Amplifier::ampOffLength, NEC_KHZ);
           break;
         }
       }
     }
-    // check if special function button off
-    else if (activeBtnId == BOKeybad::BtnId::OFF) {
-      // turn TV off
-      irSender.sendSAMSUNG(ITConfig::IRCommands::tvOff, 32); 
-      // turn amplifier off
-      irSender.sendRaw_P(ITConfig::IRCommands::ampOff, ITConfig::IRCommands::ampOffLength, NEC_KHZ);
-    }
+
     // clear active button indicator to be set with the next btn press
     activeBtnId = BOKeybad::BtnId::NONE;
     // update current time for last button press timeout

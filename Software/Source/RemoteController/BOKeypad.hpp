@@ -82,4 +82,16 @@ bool isNumBtn(BtnId id) {
   return id > BtnId::AMEM && id < BtnId::MENU && id != BtnId::TEXT;
 }
 
+bool isNavigationBtn(BtnId id) {
+  return id > BtnId::MENU && id < BtnId::LIST;
+}
+
+bool isMenuBtn(BtnId id) {
+  return id == BtnId::TEXT || id == BtnId::MENU || id == BtnId::LIST || id == BtnId::EXIT || id == BtnId::STOP;
+}
+
+bool isUniqueBtn(BtnId id) {
+  return id == BtnId::VOLUP || id == BtnId::VOLDOWN || id == BtnId::OFF;
+}
+
 };
